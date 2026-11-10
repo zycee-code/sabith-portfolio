@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#090204">
+  <meta name="description" content="SABITH — cinematic personal intro.">
+  <title>SABITH | The Experience</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="vignette"></div>
+  <div class="scanlines"></div>
+  <canvas id="particles" aria-hidden="true"></canvas>
+
+  <main class="stage">
+    <div class="topline"><span class="live-dot"></span> THE EXPERIENCE <span class="topline-right">EST. MMXXVI</span></div>
+
+    <div class="moon-wrap" aria-hidden="true">
+      <div class="moon"></div>
+      <div class="moon-halo"></div>
+    </div>
+
+    <div class="content">
+      <p class="eyebrow" id="eyebrow">NOT JUST A NAME</p>
+      <h1 class="name" aria-label="SABITH">
+        <span class="letter" style="--i:0">S</span><span class="letter" style="--i:1">A</span><span class="letter" style="--i:2">B</span><span class="letter" style="--i:3">I</span><span class="letter" style="--i:4">T</span><span class="letter" style="--i:5">H</span>
+      </h1>
+      <div class="underline"></div>
+      <p class="tagline">SILENCE THE NOISE. <span>FEEL THE PRESENCE.</span></p>
+      <button class="enter-btn" id="enterBtn" type="button">
+        <span class="btn-glow"></span><span id="buttonLabel">ENTER THE EXPERIENCE</span><span class="arrow">↗</span>
+      </button>
+    </div>
+
+    <div class="bottomline">
+      <span>NO LIMITS <b>—</b> NO FEAR</span>
+      <span class="sound-status" id="soundStatus">SOUND: OFF</span>
+      <span>SCROLL NOT REQUIRED</span>
+    </div>
+    <div class="corner corner-tl"></div><div class="corner corner-br"></div>
+  </main>
+
+  <!-- Add your legally obtained audio file as "shaitan.mp3" in this folder. -->
+  <audio id="bgMusic" src="shaitan.mp3" loop preload="none"></audio>
+
+  <button class="sound-toggle" id="soundToggle" type="button" aria-label="Toggle background music" title="Toggle music">
+    <span class="sound-bars"><i></i><i></i><i></i><i></i></span>
+    <span id="soundLabel">SOUND OFF</span>
+  </button>
+
+  <script src="script.js"></script>
+</body>
+</html>
