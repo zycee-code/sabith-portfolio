@@ -1,75 +1,149 @@
-// Mobile navigation
-const menuButton = document.querySelector(".menu-toggle");
-const nav = document.querySelector(".nav");
 
-menuButton.addEventListener("click", () => {
-  const isOpen = nav.classList.toggle("open");
-  menuButton.setAttribute("aria-expanded", String(isOpen));
-});
+const canvas = document.getElementById('particles');
+const ctx = canvas.getContext('2d');
 
-document.querySelectorAll(".nav a").forEach(link => {
-  link.addEventListener("click", () => {
-    nav.classList.remove("open");
-    menuButton.setAttribute("aria-expanded", "false");
-    document.querySelectorAll(".nav a").forEach(item => item.classList.remove("active"));
-    link.classList.add("active");
-  });
-});
+const music = document.getElementById('bgMusic');
+const soundToggle = document.getElementById('soundToggle');
+const soundLabel = document.getElementById('soundLabel');
+const soundStatus = document.getElementById('soundStatus');
+const enterBtn = document.getElementById('enterBtn');
 
-// Reveal sections as they enter the screen
-const revealObserver = new IntersectionObserver(entries => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add("visible");
-      revealObserver.unobserve(entry.target);
-    }
-  });
-}, { threshold: 0.12 });
-
-document.querySelectorAll(".reveal").forEach(element => revealObserver.observe(element));
-
-// Subtle floating red particles
-const canvas = document.getElementById("particles");
-const ctx = canvas.getContext("2d");
+let width, height;
 let particles = [];
-let width = 0;
-let height = 0;
+let playing = false;
 
-function resizeCanvas() {
-  const ratio = Math.min(window.devicePixelRatio || 1, 2);
+// Resize canvas
+function resize() {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
   width = window.innerWidth;
   height = window.innerHeight;
-  canvas.width = width * ratio;
-  canvas.height = height * ratio;
-  ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-  particles = Array.from({ length: Math.min(65, Math.floor(width / 18)) }, () => ({
+
+  canvas.width = width * dpr;
+  canvas.height = height * dpr;
+
+  canvas.style.width = width + 'px';
+  canvas.style.height = height + 'px';
+
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  const count = Math.min(
+    110,
+    Math.floor(width * height / 10500)
+  );
+
+  particles = Array.from(
+    { length: count },
+    () => makeParticle(true)
+  );
+}
+
+// Create glowing particles
+function makeParticle(randomY = false) {
+  return {
     x: Math.random() * width,
-    y: Math.random() * height,
-    radius: Math.random() * 1.5 + 0.3,
-    speed: Math.random() * 0.28 + 0.08,
-    alpha: Math.random() * 0.45 + 0.12
-  }));
+    y: randomY ? Math.random() * height : height + 10,
+    r: Math.random() * 1.8 + 0.35,
+    vy: Math.random() * 0.55 + 0.15,
+    vx: (Math.random() - 0.5) * 0.35,
+    alpha: Math.random() * 0.7 + 0.15,
+    phase: Math.random() * Math.PI * 2
+  };
 }
 
-function animateParticles() {
+// Animate particles
+function animate() {
   ctx.clearRect(0, 0, width, height);
-  particles.forEach(p => {
-    p.y -= p.speed;
-    if (p.y < -5) {
-      p.y = height + 5;
-      p.x = Math.random() * width;
+
+  for (const p of particles) {
+    p.y -= p.vy;
+
+    p.x += p.vx +
+      Math.sin(p.phase += 0.01) * 0.15;
+
+    if (p.y < -10) {
+      Object.assign(p, makeParticle(false));
     }
+
+    if (p.x < -10) p.x = width + 10;
+    if (p.x > width + 10) p.x = -10;
+
     ctx.beginPath();
-    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(237, 48, 59, ${p.alpha})`;
+
+    ctx.fillStyle = `rgba(
+      255,
+      ${35 + Math.floor(p.alpha * 35)},
+      ${65 + Math.floor(p.alpha * 45)},
+      ${p.alpha}
+    )`;
+
+    ctx.shadowBlur = 12;
+    ctx.shadowColor = '#ff173d';
+
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
     ctx.fill();
-  });
-  requestAnimationFrame(animateParticles);
+  }
+
+  ctx.shadowBlur = 0;
+
+  requestAnimationFrame(animate);
 }
 
-window.addEventListener("resize", resizeCanvas);
-resizeCanvas();
-animateParticles();
+// Background music control
+async function toggleMusic() {
+  if (!playing) {
+    try {
+      await music.play();
 
-// Current year in footer
-document.getElementById("year").textContent = new Date().getFullYear();
+      playing = true;
+
+      soundToggle.classList.add('playing');
+      soundLabel.textContent = 'SOUND ON';
+      soundStatus.textContent = 'SOUND: ON';
+
+    } catch (error) {
+      soundStatus.textContent = 'ADD shaitan.mp3';
+      soundLabel.textContent = 'AUDIO NOT FOUND';
+
+      console.warn('Music could not start:', error);
+    }
+
+  } else {
+    music.pause();
+
+    playing = false;
+
+    soundToggle.classList.remove('playing');
+    soundLabel.textContent = 'SOUND OFF';
+    soundStatus.textContent = 'SOUND: OFF';
+  }
+}
+
+// Music button
+soundToggle.addEventListener('click', toggleMusic);
+
+// Enter experience button
+enterBtn.addEventListener('click', async () => {
+  document.body.classList.add('entered');
+
+  const buttonLabel = document.getElementById('buttonLabel');
+
+  buttonLabel.textContent = 'WELCOME, SABITH';
+
+  if (!playing) {
+    await toggleMusic();
+  }
+});
+
+// Resize screen
+window.addEventListener('resize', resize);
+
+// Audio error handling
+music.addEventListener('error', () => {
+  soundStatus.textContent = 'ADD shaitan.mp3';
+  soundLabel.textContent = 'AUDIO NOT FOUND';
+});
+
+// Start everything
+resize();
+animate();
